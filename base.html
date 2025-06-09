@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Senior Living Survey{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --emerald-50: #ecfdf5;
+            --emerald-100: #d1fae5;
+            --emerald-200: #a7f3d0;
+            --emerald-300: #6ee7b7;
+            --emerald-600: #059669;
+            --emerald-700: #047857;
+        }
+        
+        body {
+            background-color: #f9fafb;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .card-custom {
+            border: 2px solid #e5e7eb;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-emerald {
+            background-color: var(--emerald-600);
+            border-color: var(--emerald-600);
+            color: white;
+        }
+        
+        .btn-emerald:hover {
+            background-color: var(--emerald-700);
+            border-color: var(--emerald-700);
+            color: white;
+        }
+        
+        .btn-emerald-outline {
+            border: 2px solid var(--emerald-300);
+            color: var(--emerald-700);
+            background-color: transparent;
+        }
+        
+        .btn-emerald-outline:hover {
+            background-color: var(--emerald-100);
+            border-color: var(--emerald-300);
+            color: var(--emerald-700);
+        }
+        
+        .option-card {
+            border: 2px solid #e5e7eb;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .option-card:hover {
+            border-color: var(--emerald-300);
+            background-color: var(--emerald-50);
+        }
+        
+        .option-card.selected {
+            border-color: var(--emerald-600);
+            background-color: var(--emerald-50);
+        }
+        
+        .progress-emerald {
+            background-color: var(--emerald-600);
+        }
+        
+        .badge-emerald {
+            background-color: var(--emerald-600);
+        }
+        
+        .text-emerald {
+            color: var(--emerald-600);
+        }
+        
+        .bg-emerald-50 {
+            background-color: var(--emerald-50);
+        }
+        
+        .border-emerald {
+            border-color: var(--emerald-200);
+        }
+        
+        .icon-emerald {
+            color: var(--emerald-600);
+        }
+        
+        .conversation-item {
+            border-left: 3px solid var(--emerald-200);
+            padding-left: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        {% block content %}{% endblock %}
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Add interactivity for option selection
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle radio button option cards
+            document.querySelectorAll('.option-card[data-type="radio"]').forEach(card => {
+                card.addEventListener('click', function() {
+                    const input = this.querySelector('input[type="radio"]');
+                    if (input) {
+                        input.checked = true;
+                        
+                        // Remove selected class from siblings
+                        const name = input.name;
+                        document.querySelectorAll(`input[name="${name}"]`).forEach(radio => {
+                            radio.closest('.option-card').classList.remove('selected');
+                        });
+                        
+                        // Add selected class to current
+                        this.classList.add('selected');
+                    }
+                });
+            });
+            
+            // Handle checkbox option cards
+            document.querySelectorAll('.option-card[data-type="checkbox"]').forEach(card => {
+                card.addEventListener('click', function() {
+                    const input = this.querySelector('input[type="checkbox"]');
+                    if (input) {
+                        input.checked = !input.checked;
+                        this.classList.toggle('selected', input.checked);
+                    }
+                });
+            });
+            
+            // Prevent form submission on option card click
+            document.querySelectorAll('.option-card input').forEach(input => {
+                input.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            });
+            
+            // Set initial selected state
+            document.querySelectorAll('input[type="radio"]:checked, input[type="checkbox"]:checked').forEach(input => {
+                input.closest('.option-card').classList.add('selected');
+            });
+        });
+    </script>
+</body>
+</html>

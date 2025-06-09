@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Your Sample Recommendations – PoC{% endblock %}
+{% block content %}
+<div class="container text-center py-5">
+  <h1 class="mb-4">POC: Assisted Living Options in 90210</h1>
+
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Sunset Villa Assisted Living</h5>
+          <p>123 Beverly Dr, Beverly Hills, CA 90210</p>
+          <p>(310) 555-0100</p>
+          <p> Amenities: Fitness Classes, 24/7 Security, On-site Nurses </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Beverly Gardens Senior Living</h5>
+          <p>456 Maple St, Beverly Hills, CA 90210</p>
+          <p>(310) 555-0200</p>
+          <p> Amenities: Fitness Classes, Group Classes, On-site Nurses, Walkable Location </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Rodeo Senior Residence</h5>
+          <p>789 Rodeo Rd, Beverly Hills, CA 90210</p>
+          <p>(310) 555-0300</p>
+          <p> Amenities: Art Classes, Group Classes, Board Game Nights, Walkable Locations </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr class="my-5">
+
+  <!-- ─── Dummy Chatbot ────────────────────────────────────────── -->
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <h3 class="mb-3 text-center">Ask Our Demo Bot</h3>
+      <div id="chat-container" 
+           style="border:1px solid #ddd; border-radius:8px; height:300px; overflow-y:auto; padding:1rem; background:#f9f9f9;">
+        <div class="chat-message bot mb-2" style="color:#065f46;">
+          Hello! Type something below and hit “Send.”
+        </div>
+      </div>
+      <div class="input-group mt-3">
+        <input id="chat-input" type="text" class="form-control" placeholder="Your question…">
+        <button id="send-btn" class="btn btn-emerald">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center mt-5">
+    <a href="{{ url_for('restart_survey') }}" class="btn btn-outline-secondary btn-lg">
+      ← Start Over
+    </a>
+  </div>
+</div>
+
+<script>
+  const chatContainer = document.getElementById('chat-container');
+  const inputEl      = document.getElementById('chat-input');
+  const sendBtn      = document.getElementById('send-btn');
+
+  // ① Define an array of replies in the order you want to send them
+  const replies = [
+    `<strong>Here are a few popular restaurants around that community:</strong>
+     <ul style="margin:0; padding-left:1.2rem;">
+       <li>Spago Beverly Hills – 176 N Canon Dr</li>
+       <li>The Grill on the Alley – 9560 S Santa Monica Blvd</li>
+       <li>Il Pastaio – 400 N Canon Dr</li>
+       <li>Urasawa – 218 N Rodeo Dr</li>
+     </ul>
+     Enjoy your meal!`,
+    `<strong>I’m well-versed in Medicare—what would you like to learn more about today?</strong>
+<ul style="margin:0; padding-left:1.2rem;">
+  <li>Enrollment periods</li>
+  <li>Coverage options (Parts A, B, C, D)</li>
+  <li>Cost-sharing & premiums</li>
+  <li>Medicare Advantage vs. Medigap</li>
+  <li>Prescription drug coverage</li>
+</ul>
+Let me know which topic interests you!`, 
+
+`<strong>Medicare Enrollment Periods</strong>
+<ul style="margin:0; padding-left:1.2rem;">
+  <li><strong>Initial Enrollment Period:</strong> Starts 3 months before you turn 65 and ends 3 months after</li>
+  <li><strong>General Enrollment Period:</strong> January 1 – March 31 each year</li>
+  <li><strong>Annual Election Period:</strong> October 15 – December 7 each year (for switching plans)</li>
+  <li><strong>Special Enrollment Periods:</strong> Triggered by qualifying events like loss of employer coverage</li>
+</ul>
+Let me know which one you’d like to dive deeper into!`
+
+  ];
+
+  // ② Keep a counter of which reply to use next
+  let replyIndex = 0;
+
+  sendBtn.addEventListener('click', () => {
+    const userText = inputEl.value.trim();
+    if (!userText) return;
+
+    // append user message
+    const userDiv = document.createElement('div');
+    userDiv.className = 'chat-message user mb-2';
+    userDiv.style.textAlign = 'right';
+    userDiv.textContent = userText;
+    chatContainer.appendChild(userDiv);
+
+    inputEl.value = '';
+
+    // pick the next canned reply
+    const botDiv = document.createElement('div');
+    botDiv.className = 'chat-message bot mb-2';
+    botDiv.innerHTML = replies[replyIndex];
+    chatContainer.appendChild(botDiv);
+
+    // advance the counter (and optionally wrap around)
+    replyIndex = Math.min(replyIndex + 1, replies.length - 1);
+    // or to loop continually: replyIndex = (replyIndex + 1) % replies.length;
+
+    // scroll to bottom
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  });
+
+  // allow Enter key to send
+  inputEl.addEventListener('keypress', e => {
+    if (e.key === 'Enter') sendBtn.click();
+  });
+</script>
+
+{% endblock %}

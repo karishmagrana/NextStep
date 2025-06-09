@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <!-- Main Survey Panel -->
+    <div class="col-lg-8">
+        <div class="card card-custom">
+            <div class="card-header bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="card-title mb-0">
+                        <i class="fas fa-home icon-emerald me-2"></i>
+                        Senior Living Survey
+                    </h2>
+                    <span class="badge bg-secondary fs-6">
+                        Question {{ current_step + 1 }} of {{ total_questions }}
+                    </span>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Progress</span>
+                        <span class="text-muted">{{ "%.0f"|format(progress) }}% Complete</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar progress-emerald" style="width: {{ progress }}%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('submit_answer') }}">
+                    <!-- Question Header -->
+                    <div class="text-center mb-5">
+                        <div class="mb-3">
+                            <i class="fas fa-{{ question.icon }} fa-3x icon-emerald"></i>
+                        </div>
+                        <h3 class="mb-3">{{ question.title }}</h3>
+                        {% if question.subtitle %}
+                            <p class="text-muted fs-5">{{ question.subtitle }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Question Options -->
+                    <div class="mb-5">
+                        {% if question.type == 'radio' %}
+                            {% for option in question.options %}
+                                <div class="option-card rounded p-4 mb-3" data-type="radio">
+                                    <div class="d-flex align-items-start">
+                                        <input type="radio" 
+                                               name="{{ question.id }}" 
+                                               value="{{ option.value }}" 
+                                               id="{{ option.value }}"
+                                               class="form-check-input mt-1 me-3"
+                                               {% if survey_data.get(question.id) == option.value %}checked{% endif %}>
+                                        <label for="{{ option.value }}" class="form-check-label fs-5 flex-grow-1">
+                                            {{ option.label }}
+                                        </label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        
+                        {% elif question.type == 'checkbox' %}
+                            {% for option in question.options %}
+                                <div class="option-card rounded p-4 mb-3" data-type="checkbox">
+                                    <div class="d-flex align-items-start">
+                                        <input type="checkbox" 
+                                               name="{{ question.id }}" 
+                                               value="{{ option.value }}" 
+                                               id="{{ option.value }}"
+                                               class="form-check-input mt-1 me-3"
+                                               {% if option.value in survey_data.get(question.id, []) %}checked{% endif %}>
+                                        <label for="{{ option.value }}" class="form-check-label fs-5 flex-grow-1">
+                                            {{ option.label }}
+                                        </label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        
+                        {% elif question.type == 'geographic' %}
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label for="zipCode" class="form-label fs-5 fw-semibold">Preferred Zip Code</label>
+                                    <input type="text" 
+                                           class="form-control form-control-lg" 
+                                           id="zipCode" 
+                                           name="zipCode"
+                                           placeholder="Enter zip code (e.g., 90210)"
+                                           maxlength="5"
+                                           value="{{ survey_data.get(question.id, {}).get('zipCode', '') }}">
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label for="radius" class="form-label fs-5 fw-semibold">Distance Preference</label>
+                                    <select class="form-select form-select-lg" id="radius" name="radius">
+                                        <option value="">Select distance</option>
+                                        <option value="5" {% if survey_data.get(question.id, {}).get('radius') == '5' %}selected{% endif %}>Within 5 miles</option>
+                                        <option value="10" {% if survey_data.get(question.id, {}).get('radius') == '10' %}selected{% endif %}>Within 10 miles</option>
+                                        <option value="25" {% if survey_data.get(question.id, {}).get('radius') == '25' %}selected{% endif %}>Within 25 miles</option>
+                                        <option value="50" {% if survey_data.get(question.id, {}).get('radius') == '50' %}selected{% endif %}>Within 50 miles</option>
+                                        <option value="100" {% if survey_data.get(question.id, {}).get('radius') == '100' %}selected{% endif %}>Within 100 miles</option>
+                                        <option value="anywhere" {% if survey_data.get(question.id, {}).get('radius') == 'anywhere' %}selected{% endif %}>Anywhere in the state</option>
+                                    </select>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Navigation Buttons -->
+                    <hr class="my-4">
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('previous_question') }}" 
+                           class="btn btn-outline-secondary btn-lg {% if current_step == 0 %}disabled{% endif %}">
+                            Previous
+                        </a>
+                        
+                        {% if current_step == total_questions - 1 %}
+                            <button type="submit" class="btn btn-emerald btn-lg">
+                                <i class="fas fa-check-circle me-2"></i>
+                                Finish & Get Recommendations
+                            </button>
+                        {% else %}
+                            <button type="submit" class="btn btn-emerald btn-lg">
+                                Next Question
+                            </button>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Conversation History Panel -->
+    <div class="col-lg-4">
+        <div class="card card-custom">
+            <div class="card-header bg-white">
+                <h4 class="card-title mb-0">Your Responses</h4>
+            </div>
+            <div class="card-body">
+                {% if not conversation_history %}
+                    <p class="text-muted text-center py-4">
+                        Your answers will appear here as you progress through the survey.
+                    </p>
+                {% else %}
+                    {% for item in conversation_history %}
+                        <div class="conversation-item mb-4">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-{{ item.icon }} icon-emerald me-2"></i>
+                                <h6 class="fw-semibold mb-0">{{ item.question }}</h6>
+                            </div>
+                            <p class="text-muted ms-4">{{ item.answer }}</p>
+                        </div>
+                        {% if not loop.last %}
+                            <hr class="my-3">
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
